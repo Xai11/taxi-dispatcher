@@ -1,0 +1,51 @@
+services:
+  ride-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ride
+      POSTGRES_USER: ride
+      POSTGRES_PASSWORD: ride
+    ports:
+      - "5432:5432"
+
+  dispatch-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: dispatch
+      POSTGRES_USER: dispatch
+      POSTGRES_PASSWORD: dispatch
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  dispatch-service:
+    build:
+      context: .
+      dockerfile: dispatch-service/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://dispatch-db:5432/dispatch
+      DB_USER: dispatch
+      DB_PASSWORD: dispatch
+      REDIS_HOST: redis
+    depends_on:
+      - dispatch-db
+      - redis
+
+  ride-api:
+    build:
+      context: .
+      dockerfile: ride-api/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://ride-db:5432/ride
+      DB_USER: ride
+      DB_PASSWORD: ride
+      DISPATCH_ADDRESS: static://dispatch-service:9090
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ride-db
+      - dispatch-service

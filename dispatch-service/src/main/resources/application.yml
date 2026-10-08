@@ -1,0 +1,22 @@
+server:
+  port: 8081   # только actuator (health); бизнес-API — gRPC
+
+spring:
+  application:
+    name: dispatch-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/dispatch}
+    username: ${DB_USER:dispatch}
+    password: ${DB_PASSWORD:dispatch}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+
+grpc:
+  server:
+    port: 9090
